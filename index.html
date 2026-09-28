@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HydroMath - Home Hydroponics Math That Holds Up</title>
+<meta name="description" content="Reservoir sizing, nutrient dosing, PPM targets by crop and stage, pH windows, top-off rules and light hours for target DLI - honest numbers for the home hydro grower.">
+<link rel="canonical" href="https://ilanis-agent.github.io/hydromath/">
+<meta property="og:title" content="HydroMath - Home Hydroponics Math That Holds Up">
+<meta property="og:description" content="Reservoir sizing, nutrient dosing, PPM targets by crop and stage, pH windows, top-off rules and light hours for target DLI - honest numbers for the home hydro grower.">
+<meta property="og:url" content="https://ilanis-agent.github.io/hydromath/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#14532d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%A5%AC%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#0d1a12; --card:#132419; --ink:#e6f2e8; --muted:#93b39c;
+  --accent:#4fbf7a; --accent2:#9fe3b8; --line:#2a4a35; --good:#8fd18a; --warn:#f2c14e; --bad:#e86a5a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:1rem}
+.wrap{max-width:760px;margin:0 auto}
+header{text-align:center;padding:1.6rem 0 1.2rem}
+h1{font-size:2.1rem;color:var(--accent2);letter-spacing:.5px}
+.tag{color:var(--muted);margin-top:.3rem;font-size:.98rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1.1rem 1.2rem;margin:1rem 0}
+.card h2{font-size:1.05rem;color:var(--accent);margin-bottom:.7rem}
+.row{display:flex;flex-wrap:wrap;gap:.9rem;align-items:flex-end;margin:.5rem 0}
+.field{display:flex;flex-direction:column;gap:.25rem}
+label{font-size:.8rem;color:var(--muted)}
+input,select{background:#0b1710;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:.45rem .6rem;font-size:1rem;width:8.5rem}
+input:focus,select:focus{outline:2px solid var(--accent)}
+button{background:var(--accent);color:#0d1a12;border:0;border-radius:8px;padding:.5rem 1.1rem;font-size:.95rem;font-weight:700;cursor:pointer}
+button:hover{background:#67d68f}
+.presets{display:flex;flex-wrap:wrap;gap:.5rem;margin:.6rem 0 .2rem}
+.presets button{background:transparent;border:1px solid var(--line);color:var(--muted);font-weight:400;padding:.35rem .8rem;font-size:.85rem}
+.presets button:hover{border-color:var(--accent);color:var(--ink)}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent2)}
+.result{margin-top:.6rem;font-size:1rem;min-height:1.4rem}
+.result small{color:var(--muted);display:block;margin-top:.25rem}
+.verdict-ok{color:var(--good)} .verdict-tight{color:var(--warn)} .verdict-bad{color:var(--bad)}
+.era{font-size:.85rem;color:var(--muted);margin-bottom:.6rem;font-style:italic}
+footer{margin:2rem 0 1rem;font-size:.8rem;color:var(--muted);border-top:1px solid var(--line);padding-top:1rem}
+footer code{color:var(--accent)}
+details{margin-top:.4rem} summary{cursor:pointer;color:var(--muted);font-size:.85rem}
+table{border-collapse:collapse;margin-top:.5rem;font-size:.9rem}
+td,th{border:1px solid var(--line);padding:.3rem .6rem;text-align:left}
+th{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>&#129388; HydroMath</h1>
+<p class="tag">Home hydroponics math that holds up. Reservoirs, nutrients, pH, light - numbers you can plan a grow on.</p>
+</header>
+
+<section class="card" id="c-res">
+<h2>Reservoir sizing</h2>
+<p class="era">Each crop drinks its own amount. Size the reservoir with a 25% buffer so roots never sit dry between top-offs.</p>
+<div class="presets" id="presets-res"></div>
+<div class="row">
+  <div class="field"><label for="in-crop">crop</label>
+    <select id="in-crop">
+      <option value="lettuce">Lettuce</option>
+      <option value="greens">Leafy greens</option>
+      <option value="herbs">Herbs</option>
+      <option value="tomato">Tomato</option>
+      <option value="pepper">Pepper</option>
+      <option value="cucumber">Cucumber</option>
+    </select>
+  </div>
+  <div class="field"><label for="in-plants">plants</label><input id="in-plants" type="number" min="1" step="1" value="12"></div>
+</div>
+<button id="btn-res">Reservoir math</button>
+<div class="result" id="out-res"></div>
+</section>
+
+<section class="card" id="c-dose">
+<h2>Nutrient dosing &amp; top-off</h2>
+<p class="era">Dose by the bottle's rate on the full reservoir. Between full changes, top off with plain pH-adjusted water - plants drink water faster than they eat.</p>
+<div class="row">
+  <div class="field"><label for="in-res">reservoir (gal)</label><input id="in-res" type="number" min="1" step="0.5" value="7.5"></div>
+  <div class="field"><label for="in-rate">bottle rate (ml/gal)</label><input id="in-rate" type="number" min="0.5" max="15" step="0.5" value="4"></div>
+  <div class="field"><label for="in-missing">water level down (gal)</label><input id="in-missing" type="number" min="0" step="0.5" value="2"></div>
+</div>
+<button id="btn-dose">Dosing math</button>
+<div class="result" id="out-dose"></div>
+</section>
+
+<section class="card" id="c-ppm">
+<h2>PPM &amp; pH check</h2>
+<p class="era">PPM by crop and stage, pH in the 5.5-6.5 window where nutrients stay available.</p>
+<div class="row">
+  <div class="field"><label for="in-pcrop">crop</label>
+    <select id="in-pcrop">
+      <option value="lettuce">Lettuce</option>
+      <option value="greens">Leafy greens</option>
+      <option value="herbs">Herbs</option>
+      <option value="tomato">Tomato</option>
+      <option value="pepper">Pepper</option>
+      <option value="cucumber">Cucumber</option>
+    </select>
+  </div>
+  <div class="field"><label for="in-stage">stage</label>
+    <select id="in-stage">
+      <option value="seedling">Seedling</option>
+      <option value="growing" selected>Growing</option>
+      <option value="full">Full / fruiting</option>
+    </select>
+  </div>
+  <div class="field"><label for="in-ppm">measured PPM</label><input id="in-ppm" type="number" min="0" step="10" value="700"></div>
+  <div class="field"><label for="in-ph">measured pH</label><input id="in-ph" type="number" min="4" max="8" step="0.1" value="6.0"></div>
+</div>
+<button id="btn-ppm">Check PPM &amp; pH</button>
+<div class="result" id="out-ppm"></div>
+</section>
+
+<section class="card" id="c-light">
+<h2>Light hours</h2>
+<p class="era">DLI (daily light integral) is the honest light measure: PPFD x hours x 0.0036. Get hours for your crop's target, and a verdict on your current setup.</p>
+<div class="row">
+  <div class="field"><label for="in-lcrop">crop</label>
+    <select id="in-lcrop">
+      <option value="lettuce">Lettuce</option>
+      <option value="greens">Leafy greens</option>
+      <option value="herbs">Herbs</option>
+      <option value="tomato">Tomato</option>
+      <option value="pepper">Pepper</option>
+      <option value="cucumber">Cucumber</option>
+    </select>
+  </div>
+  <div class="field"><label for="in-ppfd">light PPFD</label><input id="in-ppfd" type="number" min="50" step="10" value="300"></div>
+  <div class="field"><label for="in-hours">hours on</label><input id="in-hours" type="number" min="4" max="20" step="1" value="14"></div>
+</div>
+<button id="btn-light">Light math</button>
+<div class="result" id="out-light"></div>
+</section>
+
+<section class="card" id="c-why">
+<h2>Why these numbers</h2>
+<details><summary>The assumptions, stated honestly</summary>
+<table>
+<tr><th>Constant</th><th>Value</th><th>Why</th></tr>
+<tr><td>Reservoir per plant</td><td>0.5 gal lettuce, 1 herbs, 3 tomato</td><td>Fruiting crops drink far more than leaves; the 25% buffer covers hot days</td></tr>
+<tr><td>PPM targets</td><td>lettuce 560-850, tomato 1400-2500</td><td>500-scale, by crop and stage. Light feeders burn, heavy feeders starve</td></tr>
+<tr><td>pH window</td><td>5.5-6.5</td><td>Outside it, nutrients are present but locked out of the roots</td></tr>
+<tr><td>Top-off rule</td><td>plain water between changes</td><td>Plants transpire water faster than they take up nutrients - topping off with nutrient solution concentrates the tank</td></tr>
+<tr><td>DLI targets</td><td>lettuce 12-14, tomato 20-30</td><td>Daily light integral: PPFD x hours x 0.0036 mol/m2/day</td></tr>
+</table>
+<p style="margin-top:.5rem;color:var(--muted);font-size:.85rem">Cultivar, temperature and humidity all move these numbers. The math plans; the plants report.</p>
+</details>
+</section>
+
+<footer>
+<p><strong>HydroMath</strong> - part of the App Factory collection. Honest small tools, one good idea at a time.</p>
+<p>Source: <code>engine.js</code> (pure functions, tested in CI) &middot; <code>app.html</code> (this UI) &middot; <code>README.md</code></p>
+</footer>
+</div>
+</body>
+</html>
